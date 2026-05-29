@@ -114,3 +114,18 @@ main {
 .error {
   color: #b42318;
 }
+
+@media (max-width: 640px) {
+  main {
+    padding: 8px;
+  }
+
+  .chart-panel {
+    padding: 12px 6px;
+  }
+
+  .chart-panel h1,
+  .chart-panel p {
+    padding: 0 6px;
+  }
+}

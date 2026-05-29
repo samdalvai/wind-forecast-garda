@@ -6,9 +6,9 @@ const chartWidth = 820;
 const chartHeight = 360;
 const padding = {
   top: 24,
-  right: 24,
+  right: 12,
   bottom: 48,
-  left: 56,
+  left: 44,
 };
 const lowerThreshold = -2;
 const upperThreshold = 2;
