@@ -21,7 +21,7 @@ export async function getPressureFoehnData(): Promise<WindData> {
     "&longitude=11.3548,10.2760" +
     "&hourly=pressure_msl" +
     "&timezone=Europe/Rome" +
-    "&forecast_days=5";
+    "&forecast_days=7";
 
   const response = await fetch(url);
 
