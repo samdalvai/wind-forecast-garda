@@ -95,13 +95,6 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
               y1={getY(value)}
               y2={getY(value)}
             />
-            {/* <text
-              className="chart-reference-label"
-              x={chartWidth - padding.right - 8}
-              y={getY(value) - 8}
-            >
-              {value}
-            </text> */}
           </g>
         ))}
 
