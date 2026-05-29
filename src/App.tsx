@@ -35,6 +35,12 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
     padding.left + (index / Math.max(data.length - 1, 1)) * plotWidth;
   const getY = (difference: number) =>
     padding.top + ((yMax - difference) / yRange) * plotHeight;
+  const plotBottom = chartHeight - padding.bottom;
+  const lowerThresholdY = getY(lowerThreshold);
+  const upperThresholdY = getY(upperThreshold);
+  const windLabelX = padding.left + plotWidth / 2;
+  const oraLabelY = padding.top + 14;
+  const pelerLabelY = plotBottom - 84;
 
   const linePoints = data
     .map((point, index) => `${getX(index)},${getY(point.difference)}`)
@@ -150,6 +156,21 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
         role="img"
         aria-label="Line chart showing pressure difference over time"
       >
+        <rect
+          className="chart-wind-zone"
+          x={padding.left}
+          y={padding.top}
+          width={plotWidth}
+          height={upperThresholdY - padding.top}
+        />
+        <rect
+          className="chart-wind-zone"
+          x={padding.left}
+          y={lowerThresholdY}
+          width={plotWidth}
+          height={plotBottom - lowerThresholdY}
+        />
+
         {yTicks.map((tick) => {
           const y = getY(tick);
 
@@ -205,6 +226,40 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
             />
           </g>
         ))}
+
+        <g className="chart-wind-label">
+          <polygon
+            points={[
+              `${windLabelX},${oraLabelY}`,
+              `${windLabelX + 42},${oraLabelY + 20}`,
+              `${windLabelX + 26},${oraLabelY + 20}`,
+              `${windLabelX + 26},${oraLabelY + 46}`,
+              `${windLabelX - 26},${oraLabelY + 46}`,
+              `${windLabelX - 26},${oraLabelY + 20}`,
+              `${windLabelX - 42},${oraLabelY + 20}`,
+            ].join(" ")}
+          />
+          <text x={windLabelX} y={oraLabelY + 37}>
+            ORA
+          </text>
+        </g>
+
+        <g className="chart-wind-label">
+          <polygon
+            points={[
+              `${windLabelX},${pelerLabelY + 68}`,
+              `${windLabelX + 42},${pelerLabelY + 48}`,
+              `${windLabelX + 26},${pelerLabelY + 48}`,
+              `${windLabelX + 26},${pelerLabelY + 22}`,
+              `${windLabelX - 26},${pelerLabelY + 22}`,
+              `${windLabelX - 26},${pelerLabelY + 48}`,
+              `${windLabelX - 42},${pelerLabelY + 48}`,
+            ].join(" ")}
+          />
+          <text x={windLabelX} y={pelerLabelY + 41}>
+            PELER
+          </text>
+        </g>
 
         <line
           className="chart-axis"
