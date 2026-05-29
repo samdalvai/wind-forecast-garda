@@ -23,11 +23,8 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
     return <p>No forecast data available.</p>;
   }
 
-  const differences = data.map((point) => point.difference);
-  const minDifference = Math.min(...differences);
-  const maxDifference = Math.max(...differences);
-  const yMin = Math.floor(minDifference - 1);
-  const yMax = Math.ceil(maxDifference + 1);
+  const yMin = -8;
+  const yMax = 8;
   const yRange = yMax - yMin || 1;
   const plotWidth = chartWidth - padding.left - padding.right;
   const plotHeight = chartHeight - padding.top - padding.bottom;
@@ -41,7 +38,8 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
     .map((point, index) => `${getX(index)},${getY(point.difference)}`)
     .join(" ");
   const zeroY = yMin <= 0 && yMax >= 0 ? getY(0) : null;
-  const yTicks = [yMax, (yMax + yMin) / 2, yMin];
+  const referenceLines = [-2, 2].filter((value) => value >= yMin && value <= yMax);
+  const yTicks = Array.from({ length: 9 }, (_, index) => yMax - index * 2);
   const xTickIndexes = Array.from(
     new Set([0, Math.floor((data.length - 1) / 2), data.length - 1]),
   );
@@ -50,7 +48,7 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
     <section className="chart-panel" aria-labelledby="pressure-chart-title">
       <div>
         <h1 id="pressure-chart-title">Pressure Difference</h1>
-        <p>Ghedi minus Bolzano, hPa</p>
+        <p>Brescia/Ghedi - Bolzano, (hPa)</p>
       </div>
 
       <svg
@@ -87,6 +85,25 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
             y2={zeroY}
           />
         )}
+
+        {referenceLines.map((value) => (
+          <g key={value}>
+            <line
+              className="chart-reference-line"
+              x1={padding.left}
+              x2={chartWidth - padding.right}
+              y1={getY(value)}
+              y2={getY(value)}
+            />
+            {/* <text
+              className="chart-reference-label"
+              x={chartWidth - padding.right - 8}
+              y={getY(value) - 8}
+            >
+              {value}
+            </text> */}
+          </g>
+        ))}
 
         <line
           className="chart-axis"

@@ -43,6 +43,18 @@ main {
   stroke-width: 1.5;
 }
 
+.chart-reference-line {
+  stroke: #d97706;
+  stroke-dasharray: 3 5;
+  stroke-width: 1.5;
+}
+
+.chart-reference-label {
+  fill: #b45309;
+  font-size: 12px;
+  text-anchor: end;
+}
+
 .chart-axis {
   stroke: #344054;
   stroke-width: 1.5;
