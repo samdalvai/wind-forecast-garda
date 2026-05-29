@@ -99,13 +99,13 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
       const crossedThreshold = currentIsHighlighted !== nextIsHighlighted;
       const crossingPoint = crossedThreshold
         ? {
-            x:
-              current.x +
-              ((threshold - current.difference) /
-                (next.difference - current.difference)) *
-                (next.x - current.x),
-            y: thresholdY,
-          }
+          x:
+            current.x +
+            ((threshold - current.difference) /
+              (next.difference - current.difference)) *
+            (next.x - current.x),
+          y: thresholdY,
+        }
         : null;
 
       if (currentIsHighlighted && activeArea.length === 0) {
@@ -254,9 +254,6 @@ export function App() {
 
     fetchData();
   }, []);
-
-  console.log("wind data length: ", windData?.length);
-  console.log("wind data: ", windData);
 
   return (
     <main>
