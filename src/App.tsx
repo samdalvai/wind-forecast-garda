@@ -11,10 +11,10 @@ const padding = {
   left: 56,
 };
 
-function formatTime(value: string) {
+function formatDay(value: string) {
   return new Intl.DateTimeFormat("en", {
     weekday: "short",
-    hour: "2-digit",
+    day: "2-digit",
   }).format(new Date(value));
 }
 
@@ -40,8 +40,20 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
   const zeroY = yMin <= 0 && yMax >= 0 ? getY(0) : null;
   const referenceLines = [-2, 2].filter((value) => value >= yMin && value <= yMax);
   const yTicks = Array.from({ length: 9 }, (_, index) => yMax - index * 2);
-  const xTickIndexes = Array.from(
-    new Set([0, Math.floor((data.length - 1) / 2), data.length - 1]),
+  const days = data.reduce<{ date: string; startIndex: number; endIndex: number }[]>(
+    (result, point, index) => {
+      const date = point.time.split("T")[0];
+      const currentDay = result.at(-1);
+
+      if (currentDay?.date === date) {
+        currentDay.endIndex = index;
+      } else {
+        result.push({ date, startIndex: index, endIndex: index });
+      }
+
+      return result;
+    },
+    [],
   );
 
   return (
@@ -86,6 +98,17 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
           />
         )}
 
+        {days.slice(1).map((day) => (
+          <line
+            className="chart-day-line"
+            key={day.date}
+            x1={getX(day.startIndex)}
+            x2={getX(day.startIndex)}
+            y1={padding.top}
+            y2={chartHeight - padding.bottom}
+          />
+        ))}
+
         {referenceLines.map((value) => (
           <g key={value}>
             <line
@@ -115,14 +138,14 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
 
         <polyline className="chart-line" points={linePoints} />
 
-        {xTickIndexes.map((index) => (
+        {days.map((day) => (
           <text
             className="chart-x-label"
-            key={index}
-            x={getX(index)}
+            key={day.date}
+            x={getX((day.startIndex + day.endIndex) / 2)}
             y={chartHeight - 18}
           >
-            {formatTime(data[index].time)}
+            {formatDay(data[day.startIndex].time)}
           </text>
         ))}
       </svg>
