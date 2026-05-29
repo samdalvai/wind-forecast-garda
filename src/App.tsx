@@ -10,6 +10,8 @@ const padding = {
   bottom: 48,
   left: 56,
 };
+const lowerThreshold = -2;
+const upperThreshold = 2;
 
 function formatDay(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -38,7 +40,9 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
     .map((point, index) => `${getX(index)},${getY(point.difference)}`)
     .join(" ");
   const zeroY = yMin <= 0 && yMax >= 0 ? getY(0) : null;
-  const referenceLines = [-2, 2].filter((value) => value >= yMin && value <= yMax);
+  const referenceLines = [lowerThreshold, upperThreshold].filter(
+    (value) => value >= yMin && value <= yMax,
+  );
   const yTicks = Array.from({ length: 9 }, (_, index) => yMax - index * 2);
   const days = data.reduce<{ date: string; startIndex: number; endIndex: number }[]>(
     (result, point, index) => {
@@ -55,6 +59,83 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
     },
     [],
   );
+  const chartPoints = data.map((point, index) => ({
+    difference: point.difference,
+    x: getX(index),
+    y: getY(point.difference),
+  }));
+  const getHighlightedAreaPaths = (
+    threshold: number,
+    isHighlighted: (difference: number) => boolean,
+  ) => {
+    const thresholdY = getY(threshold);
+    const paths: string[] = [];
+    let activeArea: { x: number; y: number }[] = [];
+
+    const closeActiveArea = () => {
+      if (activeArea.length < 2) {
+        activeArea = [];
+        return;
+      }
+
+      const first = activeArea[0];
+      const last = activeArea[activeArea.length - 1];
+      paths.push(
+        [
+          `M ${first.x},${thresholdY}`,
+          ...activeArea.map((point) => `L ${point.x},${point.y}`),
+          `L ${last.x},${thresholdY}`,
+          "Z",
+        ].join(" "),
+      );
+      activeArea = [];
+    };
+
+    for (let index = 0; index < chartPoints.length - 1; index += 1) {
+      const current = chartPoints[index];
+      const next = chartPoints[index + 1];
+      const currentIsHighlighted = isHighlighted(current.difference);
+      const nextIsHighlighted = isHighlighted(next.difference);
+      const crossedThreshold = currentIsHighlighted !== nextIsHighlighted;
+      const crossingPoint = crossedThreshold
+        ? {
+            x:
+              current.x +
+              ((threshold - current.difference) /
+                (next.difference - current.difference)) *
+                (next.x - current.x),
+            y: thresholdY,
+          }
+        : null;
+
+      if (currentIsHighlighted && activeArea.length === 0) {
+        activeArea.push({ x: current.x, y: current.y });
+      }
+
+      if (currentIsHighlighted && nextIsHighlighted) {
+        activeArea.push({ x: next.x, y: next.y });
+      } else if (currentIsHighlighted && crossingPoint) {
+        activeArea.push(crossingPoint);
+        closeActiveArea();
+      } else if (nextIsHighlighted && crossingPoint) {
+        activeArea = [crossingPoint, { x: next.x, y: next.y }];
+      }
+    }
+
+    closeActiveArea();
+
+    return paths;
+  };
+  const highlightedAreaPaths = [
+    ...getHighlightedAreaPaths(
+      lowerThreshold,
+      (difference) => difference < lowerThreshold,
+    ),
+    ...getHighlightedAreaPaths(
+      upperThreshold,
+      (difference) => difference > upperThreshold,
+    ),
+  ];
 
   return (
     <section className="chart-panel" aria-labelledby="pressure-chart-title">
@@ -107,6 +188,10 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
             y1={padding.top}
             y2={chartHeight - padding.bottom}
           />
+        ))}
+
+        {highlightedAreaPaths.map((path) => (
+          <path className="chart-highlight-area" d={path} key={path} />
         ))}
 
         {referenceLines.map((value) => (

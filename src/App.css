@@ -54,6 +54,11 @@ main {
   stroke-width: 2.5;
 }
 
+.chart-highlight-area {
+  fill: #f97316;
+  opacity: 0.28;
+}
+
 .chart-axis {
   stroke: #344054;
   stroke-width: 1.5;
