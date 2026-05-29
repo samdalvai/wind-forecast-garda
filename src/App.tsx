@@ -140,7 +140,7 @@ function PressureDifferenceChart({ data }: { data: WindData }) {
   return (
     <section className="chart-panel" aria-labelledby="pressure-chart-title">
       <div>
-        <h1 id="pressure-chart-title">Pressure Difference</h1>
+        <h1 id="pressure-chart-title">Wind forecast Garda Lake</h1>
         <p>Brescia/Ghedi - Bolzano, (hPa)</p>
       </div>
 
